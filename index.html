@@ -330,57 +330,57 @@
     }
 
     function exportarExcelPremium() {
-        if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
+    if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
 
-        // Creación del libro de trabajo en memoria
-        const wb = XLSX.utils.book_new();
+    // Creación del libro de trabajo en memoria
+    const wb = XLSX.utils.book_new();
 
-        // HOJA 1: EL HISTORIAL TOTAL DE TRANSACCIONES (Para acumulación del dueño)
-        const datosHistorial = registros.map(reg => [
-            reg.turno, reg.hora, reg.placa, reg.cliente, reg.celular, reg.tipoVehiculo, reg.servicio, reg.valor, reg.operario, reg.objetosValor, reg.comision
+    // HOJA 1: EL HISTORIAL TOTAL DE TRANSACCIONES (Pestaña base para acumular el histórico)
+    const datosHistorial = registros.map(reg => [
+        reg.turno, reg.hora, reg.placa, reg.cliente, reg.celular, reg.tipoVehiculo, reg.servicio, reg.valor, reg.operario, reg.objetosValor, reg.comision
+    ]);
+    
+    // Agregar los encabezados de la tabla detallada
+    datosHistorial.unshift([
+        "Turno", "Hora Ingreso", "Placa", "Cliente", "Celular", "Tipo de Vehículo", "Servicio Solicitado", "Valor Pagado ($)", "Lavador Asignado", "Inventario / Objetos Valor", "Comisión Lavador"
+    ]);
+
+    const wsJornada = XLSX.utils.aoa_to_sheet(datosHistorial);
+    XLSX.utils.book_append_sheet(wb, wsJornada, "🚗 JORNADA DETALLADA");
+
+    // HOJA 2: DASHBOARD EJECUTIVO CON FÓRMULAS VIVAS DE RANGO EXTENDIDO (HASTA FILA 5000)
+    // Esto permite al dueño acumular datos de meses o todo el año y ver las métricas actualizarse solas.
+    const datosDashboard = [
+        ["WASH CONTROL PRO - TABLERO DE CONTROL CORPORATIVO"],
+        [""],
+        ["KPI FINANCIEROS ACUMULADOS"],
+        ["Recaudo Bruto Total:", { t: 'v', v: '', f: `SUM('🚗 JORNADA DETALLADA'!H2:H5000)` }],
+        ["Total Comisiones Operarios (3%):", { t: 'v', v: '', f: `SUM('🚗 JORNADA DETALLADA'!K2:K5000)` }],
+        ["Utilidad Neta del Dueño:", { t: 'v', v: '', f: `B4-B5` }],
+        [""],
+        ["LIQUIDACIÓN DE NÓMINA ACUMULADA (RANGO EXTENDIDO)"],
+        ["Operario", "Vehículos Atendidos", "Total Dinero Procesado", "Comisión a Pagar (3%)"]
+    ];
+
+    // Procesar los lavadores con fórmulas de rango extendido (SUMIF y COUNTIF hasta la fila 5000)
+    const operariosUnicos = ["Lavador 1", "Lavador 2", "Lavador 3", "Lavador 4"];
+    operariosUnicos.forEach((op, index) => {
+        const filaExcel = 10 + index;
+        datosDashboard.push([
+            op,
+            { t: 'v', v: '', f: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` },
+            { t: 'v', v: '', f: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` },
+            { t: 'v', v: '', f: `C${filaExcel}*0.03` }
         ]);
-        
-        // Agregar los encabezados de la tabla detallada
-        datosHistorial.unshift([
-            "Turno", "Hora Ingreso", "Placa", "Cliente", "Celular", "Tipo de Vehículo", "Servicio Solicitado", "Valor Pagado ($)", "Lavador Asignado", "Inventario / Objetos Valor", "Comisión Lavador"
-        ]);
+    });
 
-        const wsJornada = XLSX.utils.aoa_to_sheet(datosHistorial);
-        XLSX.utils.book_append_sheet(wb, wsJornada, "🚗 JORNADA DETALLADA");
+    const wsDashboard = XLSX.utils.aoa_to_sheet(datosDashboard);
+    XLSX.utils.book_append_sheet(wb, wsDashboard, "📈 DASHBOARD EJECUTIVO");
 
-        // HOJA 2: DASHBOARD EJECUTIVO CON FÓRMULAS VIVAS DE EXCEL
-        const limiteFilas = registros.length + 1;
-        const datosDashboard = [
-            ["WASH CONTROL PRO - TABLERO DE CONTROL CORPORATIVO"],
-            [""],
-            ["KPI FINANCIEROS JORNADA"],
-            ["Recaudo Bruto Total:", { t: 'v', v: '', f: `SUM('🚗 JORNADA DETALLADA'!H2:H${limiteFilas})` }],
-            ["Total Comisiones Operarios (3%):", { t: 'v', v: '', f: `SUM('🚗 JORNADA DETALLADA'!K2:K${limiteFilas})` }],
-            ["Utilidad Neta del Dueño:", { t: 'v', v: '', f: `B4-B5` }],
-            [""],
-            ["LIQUIDACIÓN DE NÓMINA JORNADA"],
-            ["Operario", "Vehículos Atendidos", "Total Dinero Procesado", "Comisión a Pagar (3%)"]
-        ];
-
-        // Procesar dinámicamente lavadores con fórmulas nativas de Excel para el Dashboard
-        const operariosUnicos = [...new Set(registros.map(r => r.operario))];
-        operariosUnicos.forEach((op, index) => {
-            const filaExcel = 10 + index;
-            datosDashboard.push([
-                op,
-                { t: 'v', v: '', f: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I${limiteFilas}, "${op}")` },
-                { t: 'v', v: '', f: `SUMIF('🚗 JORNADA DETALLADA'!I2:I${limiteFilas}, "${op}", '🚗 JORNADA DETALLADA'!H2:H${limiteFilas})` },
-                { t: 'v', v: '', f: `C${filaExcel}*0.03` }
-            ]);
-        });
-
-        const wsDashboard = XLSX.utils.aoa_to_sheet(datosDashboard);
-        XLSX.utils.book_append_sheet(wb, wsDashboard, "📈 DASHBOARD EJECUTIVO");
-
-        // Guardar archivo físico en el dispositivo
-        const fechaArchivo = new Date().toISOString().slice(0,10);
-        XLSX.writeFile(wb, `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
-    }
+    // Guardar archivo físico en el dispositivo
+    const fechaArchivo = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
+}
 
     // Carga inicial al abrir la aplicación
     actualizarInterfazPremium();
