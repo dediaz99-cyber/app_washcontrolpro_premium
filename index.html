@@ -166,7 +166,6 @@
 </div>
 
 <script>
-    // Configuración de tarifas base
     const tarifas = {
         "Moto":           { "Enjuague": 20000, "Abajo": 30000, "Motor": 0, "De primera calidad": 45000 },
         "Sedán":          { "Enjuague": 25000, "Abajo": 55000, "Motor": 80000, "De primera calidad": 135000 },
@@ -213,12 +212,20 @@
             return;
         }
         const ahora = new Date();
+        
+        // Formatear Fecha (DD/MM/AAAA) y Hora (HH:MM AM/PM) juntas por defecto
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const anio = ahora.getFullYear();
+        const fechaFormateada = `${dia}/${mes}/${anio}`;
         const horaFormateada = ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
+        const registroTiempoCompleto = `${fechaFormateada} - ${horaFormateada}`;
+
         const valorPagado = parseFloat(document.getElementById('valor').value);
 
         const nuevoRegistro = {
             turno: registros.length + 1,
-            hora: horaFormateada,
+            hora: registroTiempoCompleto, // Almacena Fecha y Hora combinadas
             placa: document.getElementById('placa').value.toUpperCase().replace(/\s+/g, ''),
             cliente: document.getElementById('cliente').value,
             celular: document.getElementById('celular').value,
@@ -326,7 +333,7 @@
         });
     }
 
-    // EXPORTACIÓN CON EXCELJS TOTALMENTE CORREGIDA (CON CAMIÓN PEQUEÑO Y GRANDE BLINDADOS)
+    // EXPORTACIÓN CON EXCELJS INYECTANDO FECHA Y HORA EN LA COLUMNA DE INGRESO
     async function exportarExcelPremium() {
         if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
 
@@ -335,7 +342,7 @@
         // PESTAÑA 1: DETALLE DE JORNADA (Base de datos acumulable)
         const wsJornada = workbook.addWorksheet('🚗 JORNADA DETALLADA', { views: [{ showGridLines: true }] });
         const headersJornada = [
-            "Turno", "Hora Ingreso", "Placa", "Cliente", "Celular", "Tipo de Vehículo", "Servicio Solicitado", "Valor Pagado ($)", "Lavador Asignado", "Inventario / Objetos Valor", "Comisión Lavador"
+            "Turno", "Fecha y Hora Ingreso", "Placa", "Cliente", "Celular", "Tipo de Vehículo", "Servicio Solicitado", "Valor Pagado ($)", "Lavador Asignado", "Inventario / Objetos Valor", "Comisión Lavador"
         ];
         wsJornada.addRow(headersJornada);
         
@@ -356,7 +363,7 @@
             wsJornada.getCell(`K${i}`).numberFormat = '"$"#,##0';
         }
 
-        // PESTAÑA 2: DASHBOARD CORPORATIVO (Estructura fija blindada sin solapamientos)
+        // PESTAÑA 2: DASHBOARD CORPORATIVO (Estructura fija blindada de alta precisión)
         const wsDashboard = workbook.addWorksheet('📈 DASHBOARD EJECUTIVO', { views: [{ showGridLines: true }] });
 
         wsDashboard.mergeCells('A1:D2');
@@ -384,7 +391,7 @@
             wsDashboard.getCell(cellRef).font = { name: 'Segoe UI', bold: true };
         });
 
-        // Módulo de Resumen de Flota Completo (Estructura fija e inmune a desfases en E y F)
+        // Módulo de Resumen de Flota Completo (6 Categorías con Camiones alineados fijamente)
         wsDashboard.getCell('E4').value = "MÉTRICAS COMERCIALES DE FLOTA";
         wsDashboard.getCell('E4').font = { name: 'Segoe UI', bold: true, color: { argb: '00469C' } };
         wsDashboard.getCell('E5').value = "Flota";
@@ -392,15 +399,14 @@
         wsDashboard.getCell('E5').font = { name: 'Segoe UI', bold: true };
         wsDashboard.getCell('F5').font = { name: 'Segoe UI', bold: true };
 
-        // Mapeo simétrico de los 6 tipos de vehículos de la pista
         const clasesVehiculos = ["Sedán", "Camioneta", "Moto", "Van", "Camión Pequeño", "Camión Grande"];
         clasesVehiculos.forEach((clase, index) => {
-            const rowNum = 6 + index; // Forzado absoluto desde la fila 6 a la 11
+            const rowNum = 6 + index;
             wsDashboard.getCell(`E${rowNum}`).value = clase;
             wsDashboard.getCell(`F${rowNum}`).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "${clase}")` };
         });
 
-        // Módulo de Liquidación de Operarios (Bajado estratégicamente a la fila 13)
+        // Módulo de Liquidación de Operarios (Ubicado en la fila 13)
         wsDashboard.getCell('A13').value = "LIQUIDACIÓN DE NÓMINA JORNADA (RANGO EXTENDIDO)";
         wsDashboard.getCell('A13').font = { name: 'Segoe UI', bold: true, color: { argb: 'E6007E' } };
 
@@ -417,7 +423,7 @@
 
         const operarios = ["Lavador 1", "Lavador 2", "Lavador 3", "Lavador 4"];
         operarios.forEach((op, index) => {
-            const rowNum = 16 + index; // Despliegue seguro de filas 16 a 19
+            const rowNum = 16 + index;
             wsDashboard.getCell(`A${rowNum}`).value = op;
             wsDashboard.getCell(`B${rowNum}`).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` };
             wsDashboard.getCell(`C${rowNum}`).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
@@ -427,12 +433,11 @@
             wsDashboard.getCell(`D${rowNum}`).numberFormat = '"$"#,##0';
         });
 
-        // Configurar anchos de columna fijos para evitar textos cortados
-        [wsJornada, wsDashboard].forEach(ws => {
-            ws.columns.forEach(column => { column.width = 24; });
-        });
+        // Ajustar ancho para dar cabida al nuevo formato de Fecha y Hora largo sin que tape texto
+        wsJornada.columns.forEach(column => { column.width = 25; });
+        wsDashboard.columns.forEach(column => { column.width = 25; });
 
-        // Descargar el archivo final estable y de alto rendimiento
+        // Descargar el archivo procesado de alto nivel
         workbook.xlsx.writeBuffer().then(function(buffer) {
             const fechaArchivo = new Date().toISOString().slice(0,10);
             saveAs(new Blob([buffer]), `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
