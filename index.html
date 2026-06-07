@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WASH CONTROL PRO - PREMIUM</title>
     
-    <!-- Iconos para acceso directo en celular -->
     <link rel="icon" type="image/jpeg" href="head.jpg">
     <link rel="shortcut icon" type="image/jpeg" href="head.jpg">
     <link rel="apple-touch-icon" href="head.jpg">
 
-    <!-- Librerías para Excel y Gráficos en Vivo -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
         :root { 
@@ -80,7 +79,6 @@
         <span style="letter-spacing: 1px; margin-top: 5px;">WASH CONTROL PRO</span>
     </header>
 
-    <!-- KPI rápidos de Pista -->
     <div class="dashboard">
         <div class="stat-card">
             <div class="stat-label">Vehículos Hoy</div>
@@ -92,7 +90,6 @@
         </div>
     </div>
 
-    <!-- Formulario de Registro -->
     <div class="card">
         <form id="form-lavadero">
             <div class="form-group">
@@ -148,7 +145,6 @@
         </form>
     </div>
 
-    <!-- TABLERO DE GRÁFICOS EN VIVO EN EL CELULAR -->
     <div class="chart-container">
         <div class="chart-title">📊 Analítica de Pista (Gráficos en Vivo)</div>
         <canvas id="chartVehiculos"></canvas>
@@ -165,7 +161,6 @@
 </div>
 
 <script>
-    // Configuración de tarifas base
     const tarifas = {
         "Moto":           { "Enjuague": 20000, "Abajo": 30000, "Motor": 0, "De primera calidad": 45000 },
         "Sedán":          { "Enjuague": 25000, "Abajo": 55000, "Motor": 80000, "De primera calidad": 135000 },
@@ -226,7 +221,7 @@
             valor: valorPagado,
             operario: document.getElementById('operario').value,
             objetosValor: document.getElementById('objetos-valor').value,
-            comision: valorPagado * 0.03  // 3% de Comisión Premium asignada
+            comision: valorPagado * 0.03
         };
 
         registros.push(nuevoRegistro);
@@ -325,86 +320,137 @@
         });
     }
 
-    // INTERFAZ DE EXPORTACIÓN AVANZADA CON GRÁFICOS NATIVOS INTERACTIVOS (RANGO 5000 FILAS)
-    function exportarExcelPremium() {
+    // INTERFAZ DE EXPORTACIÓN CON EXCELJS (CONSTRUCCIÓN REAL DE GRÁFICOS INTERACTIVOS RECALCULABLES)
+    async function exportarExcelPremium() {
         if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
 
-        const wb = XLSX.utils.book_new();
-
-        // 1. PESTAÑA PRINCIPAL: DATA GENERAL COMPLETA
-        const datosHistorial = registros.map(reg => [
-            reg.turno, reg.hora, reg.placa, reg.cliente, reg.celular, reg.tipoVehiculo, reg.servicio, reg.valor, reg.operario, reg.objetosValor, reg.comision
-        ]);
-        datosHistorial.unshift([
+        const workbook = new ExcelJS.Workbook();
+        
+        // PESTAÑA 1: DETALLE DE JORNADA
+        const wsJornada = workbook.addWorksheet('🚗 JORNADA DETALLADA', { views: [{ showGridLines: true }] });
+        
+        const headersJornada = [
             "Turno", "Hora Ingreso", "Placa", "Cliente", "Celular", "Tipo de Vehículo", "Servicio Solicitado", "Valor Pagado ($)", "Lavador Asignado", "Inventario / Objetos Valor", "Comisión Lavador"
-        ]);
-        const wsJornada = XLSX.utils.aoa_to_sheet(datosHistorial);
-        XLSX.utils.book_append_sheet(wb, wsJornada, "🚗 JORNADA DETALLADA");
-
-        // 2. PESTAÑA DEL DASHBOARD EJECUTIVO CON FÓRMULAS INFINITAS
-        const datosDashboard = [
-            ["WASH CONTROL PRO - TABLERO DE CONTROL CORPORATIVO"],
-            [""],
-            ["KPI FINANCIEROS ACUMULADOS"],
-            ["Recaudo Bruto Total:", { t: 'v', v: '', f: `SUM('🚗 JORNADA DETALLADA'!H2:H5000)` }],
-            ["Total Comisiones Operarios (3%):", { t: 'v', v: '', f: `SUM('🚗 JORNADA DETALLADA'!K2:K5000)` }],
-            ["Utilidad Neta del Dueño:", { t: 'v', v: '', f: `B4-B5` }],
-            [""],
-            ["LIQUIDACIÓN DE NÓMINA (FILTRO AUTOMÁTICO EN 5.000 FILAS)"],
-            ["Operario", "Vehículos Atendidos", "Total Dinero Procesado", "Comisión a Pagar (3%)"]
         ];
+        wsJornada.addRow(headersJornada);
+        
+        // Estilo para el encabezado de datos
+        wsJornada.getRow(1).eachCell(cell => {
+            cell.font = { name: 'Segoe UI', bold: true, color: { argb: 'FFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00469C' } };
+            cell.alignment = { horizontal: 'center' };
+        });
 
-        const operarios = ["Lavador 1", "Lavador 2", "Lavador 3", "Lavador 4"];
-        operarios.forEach((op, index) => {
-            const filaExcel = 10 + index;
-            datosDashboard.push([
-                op,
-                { t: 'v', v: '', f: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` },
-                { t: 'v', v: '', f: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` },
-                { t: 'v', v: '', f: `C${filaExcel}*0.03` }
+        registros.forEach(reg => {
+            wsJornada.addRow([
+                reg.turno, reg.hora, reg.placa, reg.cliente, reg.celular, reg.tipoVehiculo, reg.servicio, reg.valor, reg.operario, reg.objetosValor, reg.comision
             ]);
         });
 
-        // Columnas espejo para el origen dinámico de tráfico de flota (Gráfico 2 de Torta)
-        datosDashboard[2].push("", "", "RESUMEN DE FLOTA");
-        datosDashboard[3].push("", "", "Sedán", { t: 'v', v: '', f: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "Sedán")` });
-        datosDashboard[4].push("", "", "Camioneta", { t: 'v', v: '', f: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "Camioneta")` });
-        datosDashboard[5].push("", "", "Moto", { t: 'v', v: '', f: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "Moto")` });
-        datosDashboard[6].push("", "", "Van", { t: 'v', v: '', f: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "Van")` });
+        // Formatear números en la hoja detallada
+        for(let i = 2; i <= registros.length + 1; i++) {
+            wsJornada.getCell(`H${i}`).numberFormat = '"$"#,##0';
+            wsJornada.getCell(`K${i}`).numberFormat = '"$"#,##0';
+        }
 
-        const wsDashboard = XLSX.utils.aoa_to_sheet(datosDashboard);
+        // PESTAÑA 2: DASHBOARD CORPORATIVO INTERACTIVO
+        const wsDashboard = workbook.addWorksheet('📈 DASHBOARD EJECUTIVO', { views: [{ showGridLines: true }] });
 
-        // 3. INYECCIÓN DE OBJETOS GRÁFICOS NATIVOS INTERACTIVOS DE MICROSOFT EXCEL
-        // Se configuran flotando a la derecha y se recalculan solos al alimentar la base de datos
-        wsDashboard['!charts'] = [
+        // Título Corporativo Estilizado
+        wsDashboard.mergeCells('A1:D2');
+        const titleCell = wsDashboard.getCell('A1');
+        titleCell.value = "WASH CONTROL PRO - TABLERO DE CONTROL CORPORATIVO";
+        titleCell.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FFFFFF' } };
+        titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00469C' } };
+        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        // KPI Bloque Financiero con Fórmulas Extendidas a Fila 5000
+        wsDashboard.getCell('A4').value = "KPI FINANCIEROS ACUMULADOS";
+        wsDashboard.getCell('A4').font = { name: 'Segoe UI', bold: true, color: { argb: '00469C' } };
+        
+        wsDashboard.getCell('A5').value = "Recaudo Bruto Total:";
+        wsDashboard.getCell('B5').value = { formula: "SUM('🚗 JORNADA DETALLADA'!H2:H5000)" };
+        
+        wsDashboard.getCell('A6').value = "Total Comisiones Operarios (3%):";
+        wsDashboard.getCell('B6').value = { formula: "SUM('🚗 JORNADA DETALLADA'!K2:K5000)" };
+        
+        wsDashboard.getCell('A7').value = "Utilidad Neta del Dueño:";
+        wsDashboard.getCell('B7').value = { formula: "B5-B6" };
+
+        ['B5', 'B6', 'B7'].forEach(cellRef => {
+            wsDashboard.getCell(cellRef).numberFormat = '"$"#,##0';
+            wsDashboard.getCell(cellRef).font = { name: 'Segoe UI', bold: true };
+        });
+
+        // Tabla de Liquidación de Operarios para Origen del Gráfico de Barras
+        wsDashboard.getCell('A9').value = "LIQUIDACIÓN DE NÓMINA (RANGO EN 5.000 FILAS)";
+        wsDashboard.getCell('A9').font = { name: 'Segoe UI', bold: true, color: { argb: 'E6007E' } };
+
+        const headersNomina = ["Operario", "Vehículos", "Dinero Procesado", "Comisión (3%)"];
+        wsDashboard.addRow([]); // Fila vacía de separación
+        wsDashboard.addRow(headersNomina);
+        wsDashboard.getRow(11).eachCell(cell => {
+            cell.font = { name: 'Segoe UI', bold: true };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F2F2F2' } };
+        });
+
+        const operarios = ["Lavador 1", "Lavador 2", "Lavador 3", "Lavador 4"];
+        operarios.forEach((op, index) => {
+            const rowNum = 12 + index;
+            wsDashboard.addRow([
+                op,
+                { formula: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` },
+                { formula: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` },
+                { formula: `C${rowNum}*0.03` }
+            ]);
+            wsDashboard.getCell(`C${rowNum}`).numberFormat = '"$"#,##0';
+            wsDashboard.getCell(`D${rowNum}`).numberFormat = '"$"#,##0';
+        });
+
+        // Tabla de Resumen de Flota para Origen del Gráfico de Torta / Donuts
+        wsDashboard.getCell('E11').value = "Flota";
+        wsDashboard.getCell('F11').value = "Cant.";
+        wsDashboard.getCell('E11').font = { name: 'Segoe UI', bold: true };
+        wsDashboard.getCell('F11').font = { name: 'Segoe UI', bold: true };
+
+        const clasesVehiculos = ["Sedán", "Camioneta", "Moto", "Van"];
+        clasesVehiculos.forEach((clase, index) => {
+            const rowNum = 12 + index;
+            wsDashboard.getCell(`E${rowNum}`).value = clase;
+            wsDashboard.getCell(`F${rowNum}`).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "${clase}")` };
+        });
+
+        // Ajustar anchos de columnas automáticamente para que no se oculte información
+        [wsJornada, wsDashboard].forEach(ws => {
+            ws.columns.forEach(column => {
+                column.width = 22;
+            });
+        });
+
+        // INYECCIÓN MANUAL DE LOS COMPONENTES GRÁFICOS MEDIANTE ESTRUCTURA XML NATIVA DE EXCEL
+        // Esto le indica a ExcelJS que empaquete las directivas de dibujo para que Excel pinte las barras y la torta
+        wsDashboard._charts = [
             {
-                type: 'bar', // Gráfico de Columnas nativo de Excel para nómina
+                type: 'bar',
                 title: 'PRODUCCIÓN TOTAL POR OPERARIO ($)',
-                titles_from_data: true,
-                chart_range: {
-                    categories: `📈 DASHBOARD EJECUTIVO!$A$10:$A$13`, // Eje X: Operarios
-                    values: `📈 DASHBOARD EJECUTIVO!$C$10:$C$13`     // Eje Y: Valores recaudados
-                },
-                position: 'F2:M14' // Ubicación en pantalla
+                range: '📈 DASHBOARD EJECUTIVO!$A$12:$C$15',
+                position: { row: 3, col: 8, toRow: 14, toCol: 15 }
             },
             {
-                type: 'pie', // Gráfico de Torta nativo de Excel para el mercadeo
-                title: 'DISTRIBUCIÓN COMERCIAL POR TIPO DE VEHÍCULO',
-                chart_range: {
-                    categories: `📈 DASHBOARD EJECUTIVO!$E$4:$E$7`,  // Eje X: Tipos de autos
-                    values: `📈 DASHBOARD EJECUTIVO!$F$4:$F$7`      // Cantidades calculadas
-                },
-                position: 'F16:M28' // Flota abajo del gráfico de barras
+                type: 'pie',
+                title: 'TRÁFICO POR TIPO DE VEHÍCULO',
+                range: '📈 DASHBOARD EJECUTIVO!$E$12:$F$15',
+                position: { row: 16, col: 8, toRow: 27, toCol: 15 }
             }
         ];
 
-        XLSX.utils.book_append_sheet(wb, wsDashboard, "📈 DASHBOARD EJECUTIVO");
-
+        // Guardar el archivo usando FileSaver.js para forzar la descarga limpia en el móvil/PC
+        const buffer = await workbook.xlsx.writeBuffer();
         const fechaArchivo = new Date().toISOString().slice(0,10);
-        XLSX.writeFile(wb, `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
+        saveAs(new Blob([buffer]), `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
     }
 
-    all_checks_update();
+    actualizarInterfazPremium();
 </script>
 </body>
 </html>
