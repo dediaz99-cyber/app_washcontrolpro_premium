@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WASH CONTROL PRO - PREMIUM</title>
+    
+    <!-- Iconos para acceso directo en celular -->
+    <link rel="icon" type="image/jpeg" href="head.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="head.jpg">
+    <link rel="apple-touch-icon" href="head.jpg">
+
+    <!-- Librerías para Excel y Gráficos en Vivo -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root { 
+            --bg-corporate: #00469c;   /* Azul Rey Dominante */
+            --brand-pink: #e6007e;     /* Rosado/Magenta del Elefante */
+            --success: #2b8a3e;       /* Verde Financiero */
+            --danger: #c92a2a;        /* Rojo Crítico */
+            --dark: #1a2530; 
+            --light: #f8f9fa;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-corporate); color: var(--dark); padding: 10px; padding-bottom: 40px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        
+        header { 
+            text-align: center; padding: 20px 0 15px 0; color: white; font-weight: bold; font-size: 24px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .brand-logo {
+            max-width: 180px; max-height: 75px; width: auto; height: auto; border-radius: 8px;
+            object-fit: contain; padding: 6px; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .stat-card { background: white; padding: 14px; border-radius: 14px; text-align: center; border: 3px solid var(--brand-pink); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .stat-label { font-size: 11px; text-transform: uppercase; color: #6c757d; font-weight: bold; margin-bottom: 5px; }
+        .stat-value { font-size: 20px; font-weight: bold; color: var(--bg-corporate); }
+        .stat-card.recaudo .stat-value { color: var(--success); }
+        
+        .card { background: white; padding: 20px; border-radius: 16px; border: 3px solid var(--brand-pink); box-shadow: 0 6px 15px rgba(0,0,0,0.15); margin-bottom: 15px; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #495057; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 15px; background-color: var(--light); outline: none; }
+        input:focus, select:focus { border-color: var(--brand-pink); background-color: white; box-shadow: 0 0 0 3px rgba(230, 0, 126, 0.15); }
+        
+        .alert-box { background-color: #fff4e6; border: 1px dashed #fd7e14; border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+        
+        .btn { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; color: white; transition: background 0.2s, transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background-color: var(--brand-pink); box-shadow: 0 4px 8px rgba(230, 0, 126, 0.25); }
+        .btn-primary:hover { background-color: #bd0066; }
+        .btn-success { background-color: var(--success); }
+        .btn-danger { background-color: #e64980; opacity: 0.95; font-size: 13px; padding: 10px; }
+        .btn-delete { background-color: var(--danger); padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 6px; width: auto; margin: 0; }
+        
+        .records-title { font-weight: bold; margin-bottom: 12px; color: white; }
+        .record-item { background: white; padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 6px solid var(--brand-pink); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .record-info p { font-size: 13px; margin-bottom: 2px; color: #6c757d; }
+        .badge-placa { background: var(--bg-corporate); color: white; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 13px; display: inline-block; margin-bottom: 4px; }
+        .record-val { text-align: right; font-weight: bold; font-size: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        
+        /* Contenedor del Tablero de Gráficos en el Celular */
+        .chart-container { background: white; padding: 15px; border-radius: 16px; border: 3px solid var(--brand-pink); margin-bottom: 15px; }
+        .chart-title { font-size: 14px; font-weight: bold; color: var(--bg-corporate); text-align: center; margin-bottom: 10px; text-transform: uppercase; }
+        canvas { max-width: 100%; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <img src="logo.jpg" alt="Logo Cliente" class="brand-logo" onerror="this.style.display='none';">
+        <span style="letter-spacing: 1px; margin-top: 5px;">WASH CONTROL PRO</span>
+    </header>
+
+    <!-- KPI rápidos de Pista -->
+    <div class="dashboard">
+        <div class="stat-card">
+            <div class="stat-label">Vehículos Hoy</div>
+            <div class="stat-value" id="count-hoy">0</div>
+        </div>
+        <div class="stat-card recaudo">
+            <div class="stat-label">Utilidad Dueño (97%)</div>
+            <div class="stat-value" id="utilidad-hoy">$0</div>
+        </div>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <div class="card">
+        <form id="form-lavadero">
+            <div class="form-group">
+                <label>Placa del Vehículo</label>
+                <input type="text" id="placa" placeholder="EJ: XYZ123" required style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Nombre del Cliente</label>
+                <input type="text" id="cliente" placeholder="Nombre del propietario" required>
+            </div>
+            <div class="form-group">
+                <label>Número de Celular</label>
+                <input type="tel" id="celular" placeholder="Ej: 3101234567" required>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Vehículo</label>
+                <select id="tipo-vehiculo" required onchange="cargarServicios()">
+                    <option value="">Seleccione...</option>
+                    <option value="Moto">Motocicleta / Moto</option>
+                    <option value="Sedán">Automóvil Sedán</option>
+                    <option value="Camioneta">Camioneta / SUV</option>
+                    <option value="Van">Van</option>
+                    <option value="Camión Pequeño">Camión Pequeño</option>
+                    <option value="Camión Grande">Camión Grande</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Servicio</label>
+                <select id="servicio" required onchange="asignarPrecio()">
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Valor a Cancelar ($)</label>
+                <input type="number" id="valor" required>
+            </div>
+            <div class="form-group">
+                <label>Operario / Lavador Asignado</label>
+                <select id="operario" required>
+                    <option value="">Seleccione lavador...</option>
+                    <option value="Lavador 1">Lavador 1</option>
+                    <option value="Lavador 2">Lavador 2</option>
+                    <option value="Lavador 3">Lavador 3</option>
+                    <option value="Lavador 4">Lavador 4</option>
+                </select>
+            </div>
+            <div class="alert-box">
+                <label style="color: #d9480f; display: flex; align-items: center; gap: 4px;">🛡️ Inventario / Objetos de Valor</label>
+                <input type="text" id="objetos-valor" placeholder="Ej: Ninguno" required>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="registrarTurno()">Registrar Ingreso y Turno</button>
+        </form>
+    </div>
+
+    <!-- TABLERO DE GRÁFICOS EN VIVO EN EL CELULAR -->
+    <div class="chart-container">
+        <div class="chart-title">📊 Analítica de Pista (Gráficos en Vivo)</div>
+        <canvas id="chartVehiculos"></canvas>
+        <canvas id="chartOperarios"></canvas>
+    </div>
+
+    <button class="btn btn-success" onclick="exportarExcelPremium()">📥 Descargar Dashboard e Historial en Excel</button>
+    <button class="btn btn-danger" onclick="reiniciarJornada()">⚠️ Reiniciar Jornada (Solo Dueño)</button>
+
+    <div class="card" style="border-top: 8px solid var(--brand-pink);">
+        <div class="records-title" style="color: var(--dark);">Movimientos de la Jornada:</div>
+        <div id="lista-registros"></div>
+    </div>
+</div>
+
+<script>
+    // Configuración de tarifas base
+    const tarifas = {
+        "Moto":           { "Enjuague": 20000, "Abajo": 30000, "Motor": 0, "De primera calidad": 45000 },
+        "Sedán":          { "Enjuague": 25000, "Abajo": 55000, "Motor": 80000, "De primera calidad": 135000 },
+        "Camioneta":      { "Enjuague": 35000, "Abajo": 65000, "Motor": 100000, "De primera calidad": 150000 },
+        "Van":            { "Enjuague": 45000, "Abajo": 75000, "Motor": 120000, "De primera calidad": 170000 },
+        "Camión Pequeño": { "Enjuague": 60000, "Abajo": 85000, "Motor": 150000, "De primera calidad": 200000 },
+        "Camión Grande":  { "Enjuague": 80000, "Abajo": 100000, "Motor": 180000, "De primera calidad": 250000 }
+    };
+
+    let registros = JSON.parse(localStorage.getItem('datos_control_lavado_premium')) || [];
+    let chartV, chartO;
+
+    function cargarServicios() {
+        const tipo = document.getElementById('tipo-vehiculo').value;
+        const servicioSelect = document.getElementById('servicio');
+        servicioSelect.innerHTML = '<option value="">Seleccione...</option>';
+        if(tipo && tarifas[tipo]) {
+            for(let serv in tarifas[tipo]) {
+                let opt = document.createElement('option');
+                opt.value = serv;
+                opt.textContent = (tipo === "Moto" && serv === "Motor") ? "Motor (N/A)" : serv;
+                servicioSelect.appendChild(opt);
+            }
+        }
+        document.getElementById('valor').value = '';
+    }
+
+    function asignarPrecio() {
+        const tipo = document.getElementById('tipo-vehiculo').value;
+        const serv = document.getElementById('servicio').value;
+        if(tipo && serv && tarifas[tipo]) {
+            if (tipo === "Moto" && serv === "Motor") {
+                document.getElementById('valor').value = 0;
+                alert("❌ Servicio de Motor no disponible para Motocicletas.");
+            } else {
+                document.getElementById('valor').value = tarifas[tipo][serv];
+            }
+        }
+    }
+
+    function registrarTurno() {
+        if(!document.getElementById('form-lavadero').checkValidity()) {
+            alert("Por favor complete todos los campos obligatorios.");
+            return;
+        }
+        const ahora = new Date();
+        const horaFormateada = ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
+        const valorPagado = parseFloat(document.getElementById('valor').value);
+
+        const nuevoRegistro = {
+            turno: registros.length + 1,
+            hora: horaFormateada,
+            placa: document.getElementById('placa').value.toUpperCase().replace(/\s+/g, ''),
+            cliente: document.getElementById('cliente').value,
+            celular: document.getElementById('celular').value,
+            tipoVehiculo: document.getElementById('tipo-vehiculo').value,
+            servicio: document.getElementById('servicio').value,
+            valor: valorPagado,
+            operario: document.getElementById('operario').value,
+            objetosValor: document.getElementById('objetos-valor').value,
+            comision: valorPagado * 0.03  // 3% de Comisión Premium asignada
+        };
+
+        registros.push(nuevoRegistro);
+        localStorage.setItem('datos_control_lavado_premium', JSON.stringify(registros));
+        document.getElementById('form-lavadero').reset();
+        document.getElementById('servicio').innerHTML = '<option value="">Seleccione...</option>';
+        actualizarInterfazPremium();
+    }
+
+    function eliminarRegistro(idx) {
+        if(confirm("🔑 CONTROL DE AUDITORÍA\n\n¿Desea eliminar este movimiento de la pista?")) {
+            registros.splice(idx, 1);
+            registros.forEach((reg, i) => reg.turno = i + 1);
+            localStorage.setItem('datos_control_lavado_premium', JSON.stringify(registros));
+            actualizarInterfazPremium();
+        }
+    }
+
+    function reiniciarJornada() {
+        if(confirm("🚨 ATENCIÓN DUEÑO: ¿Confirma el cierre definitivo y borrado de la jornada de pista?")) {
+            registros = [];
+            localStorage.removeItem('datos_control_lavado_premium');
+            actualizarInterfazPremium();
+        }
+    }
+
+    function actualizarInterfazPremium() {
+        const lista = document.getElementById('lista-registros');
+        lista.innerHTML = '';
+        let totalRecaudo = 0;
+        let totalComisiones = 0;
+
+        document.getElementById('count-hoy').textContent = registros.length;
+
+        // Conteos para los gráficos dinámicos del móvil
+        let conteoVehiculos = {};
+        let produccionOperarios = {};
+
+        registros.forEach((reg, index) => {
+            totalRecaudo += reg.valor;
+            totalComisiones += reg.comision;
+
+            // Agrupación para analítica
+            conteoVehiculos[reg.tipoVehiculo] = (conteoVehiculos[reg.tipoVehiculo] || 0) + 1;
+            produccionOperarios[reg.operario] = (produccionOperarios[reg.operario] || 0) + reg.valor;
+
+            const item = document.createElement('div');
+            item.className = 'record-item';
+            item.innerHTML = `
+                <div class="record-info">
+                    <span class="badge-placa">${reg.placa}</span>
+                    <p><strong>${reg.servicio}</strong> (${reg.tipoVehiculo})</p>
+                    <p>👷 ${reg.operario} | 🕒 ${reg.hora}</p>
+                    <p>🛡️ Ítems: ${reg.objetosValor}</p>
+                </div>
+                <div class="record-val">
+                    <span>$${reg.valor.toLocaleString()}</span>
+                    <span style="font-size:11px; color:var(--brand-pink)">Com: $${reg.comision.toLocaleString()}</span>
+                    <button class="btn btn-delete" onclick="eliminarRegistro(${index})">Eliminar</button>
+                </div>
+            `;
+            lista.appendChild(item);
+        });
+
+        document.getElementById('utilidad-hoy').textContent = '$' + (totalRecaudo - totalComisiones).toLocaleString();
+        actualizarGraficosMovil(conteoVehiculos, produccionOperarios);
+    }
+
+    function actualizarGraficosMovil(vehiculosData, operariosData) {
+        if(chartV) chartV.destroy();
+        if(chartO) chartO.destroy();
+
+        // 1. Gráfico de Dona para Tipos de Vehículo
+        const ctxV = document.getElementById('chartVehiculos').getContext('2d');
+        chartV = new Chart(ctxV, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(vehiculosData),
+                datasets: [{
+                    data: Object.values(vehiculosData),
+                    backgroundColor: ['#00469c', '#e6007e', '#00a8e5', '#2b8a3e', '#fd7e14']
+                }]
+            },
+            options: { plugins: { title: { display: true, text: 'Tráfico por Tipo de Vehículo' } } }
+        });
+
+        // 2. Gráfico de Barras para Producción de Lavadores
+        const ctxO = document.getElementById('chartOperarios').getContext('2d');
+        chartO = new Chart(ctxO, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(operariosData),
+                datasets: [{
+                    label: 'Recaudo por Operario ($)',
+                    data: Object.values(operariosData),
+                    backgroundColor: '#e6007e'
+                }]
+            },
+            options: { plugins: { title: { display: true, text: 'Rendimiento de Lavadores ($)' } } }
+        });
+    }
+
+    function exportarExcelPremium() {
+        if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
+
+        // Creación del libro de trabajo en memoria
+        const wb = XLSX.utils.book_new();
+
+        // HOJA 1: EL HISTORIAL TOTAL DE TRANSACCIONES (Para acumulación del dueño)
+        const datosHistorial = registros.map(reg => [
+            reg.turno, reg.hora, reg.placa, reg.cliente, reg.celular, reg.tipoVehiculo, reg.servicio, reg.valor, reg.operario, reg.objetosValor, reg.comision
+        ]);
+        
+        // Agregar los encabezados de la tabla detallada
+        datosHistorial.unshift([
+            "Turno", "Hora Ingreso", "Placa", "Cliente", "Celular", "Tipo de Vehículo", "Servicio Solicitado", "Valor Pagado ($)", "Lavador Asignado", "Inventario / Objetos Valor", "Comisión Lavador"
+        ]);
+
+        const wsJornada = XLSX.utils.aoa_to_sheet(datosHistorial);
+        XLSX.utils.book_append_sheet(wb, wsJornada, "🚗 JORNADA DETALLADA");
+
+        // HOJA 2: DASHBOARD EJECUTIVO CON FÓRMULAS VIVAS DE EXCEL
+        const limiteFilas = registros.length + 1;
+        const datosDashboard = [
+            ["WASH CONTROL PRO - TABLERO DE CONTROL CORPORATIVO"],
+            [""],
+            ["KPI FINANCIEROS JORNADA"],
+            ["Recaudo Bruto Total:", { t: 'v', v: '', f: `SUM('🚗 JORNADA DETALLADA'!H2:H${limiteFilas})` }],
+            ["Total Comisiones Operarios (3%):", { t: 'v', v: '', f: `SUM('🚗 JORNADA DETALLADA'!K2:K${limiteFilas})` }],
+            ["Utilidad Neta del Dueño:", { t: 'v', v: '', f: `B4-B5` }],
+            [""],
+            ["LIQUIDACIÓN DE NÓMINA JORNADA"],
+            ["Operario", "Vehículos Atendidos", "Total Dinero Procesado", "Comisión a Pagar (3%)"]
+        ];
+
+        // Procesar dinámicamente lavadores con fórmulas nativas de Excel para el Dashboard
+        const operariosUnicos = [...new Set(registros.map(r => r.operario))];
+        operariosUnicos.forEach((op, index) => {
+            const filaExcel = 10 + index;
+            datosDashboard.push([
+                op,
+                { t: 'v', v: '', f: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I${limiteFilas}, "${op}")` },
+                { t: 'v', v: '', f: `SUMIF('🚗 JORNADA DETALLADA'!I2:I${limiteFilas}, "${op}", '🚗 JORNADA DETALLADA'!H2:H${limiteFilas})` },
+                { t: 'v', v: '', f: `C${filaExcel}*0.03` }
+            ]);
+        });
+
+        const wsDashboard = XLSX.utils.aoa_to_sheet(datosDashboard);
+        XLSX.utils.book_append_sheet(wb, wsDashboard, "📈 DASHBOARD EJECUTIVO");
+
+        // Guardar archivo físico en el dispositivo
+        const fechaArchivo = new Date().toISOString().slice(0,10);
+        XLSX.writeFile(wb, `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
+    }
+
+    // Carga inicial al abrir la aplicación
+    actualizarInterfazPremium();
+</script>
+</body>
+</html>
