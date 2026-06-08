@@ -1,450 +1,443 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WASH CONTROL PRO - PREMIUM</title>
-    
-    <!-- Iconos para acceso directo en celular -->
-    <link rel="icon" type="image/jpeg" href="head.jpg">
-    <link rel="shortcut icon" type="image/jpeg" href="head.jpg">
-    <link rel="apple-touch-icon" href="head.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WASH CONTROL PRO - PREMIUM</title>
+    
+    <!-- Iconos para acceso directo en celular -->
+    <link rel="icon" type="image/jpeg" href="head.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="head.jpg">
+    <link rel="apple-touch-icon" href="head.jpg">
 
-    <!-- Librerías de Alto Impacto para Gráficos en Vivo, ExcelJS y Descarga Segura -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <!-- Librerías de Alto Impacto para Gráficos en Vivo, ExcelJS y Descarga Segura -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <style>
-        :root { 
-            --bg-corporate: #00469c;   /* Azul Rey Dominante */
-            --brand-pink: #e6007e;     /* Rosado/Magenta del Elefante */
-            --success: #2b8a3e;       /* Verde Financiero */
-            --danger: #c92a2a;        /* Rojo Crítico */
-            --dark: #1a2530; 
-            --light: #f8f9fa;
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-corporate); color: var(--dark); padding: 10px; padding-bottom: 40px; }
-        .container { max-width: 500px; margin: 0 auto; }
-        
-        header { 
-            text-align: center; padding: 20px 0 15px 0; color: white; font-weight: bold; font-size: 24px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .brand-logo {
-            max-width: 180px; max-height: 75px; width: auto; height: auto; border-radius: 8px;
-            object-fit: contain; padding: 6px; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .stat-card { background: white; padding: 14px; border-radius: 14px; text-align: center; border: 3px solid var(--brand-pink); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .stat-label { font-size: 11px; text-transform: uppercase; color: #6c757d; font-weight: bold; margin-bottom: 5px; }
-        .stat-value { font-size: 20px; font-weight: bold; color: var(--bg-corporate); }
-        .stat-card.recaudo .stat-value { color: var(--success); }
-        
-        .card { background: white; padding: 20px; border-radius: 16px; border: 3px solid var(--brand-pink); box-shadow: 0 6px 15px rgba(0,0,0,0.15); margin-bottom: 15px; }
-        .form-group { margin-bottom: 14px; }
-        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #495057; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 15px; background-color: var(--light); outline: none; }
-        input:focus, select:focus { border-color: var(--brand-pink); background-color: white; box-shadow: 0 0 0 3px rgba(230, 0, 126, 0.15); }
-        
-        .alert-box { background-color: #fff4e6; border: 1px dashed #fd7e14; border-radius: 8px; padding: 10px; margin-bottom: 15px; }
-        
-        .btn { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; color: white; transition: background 0.2s, transform 0.1s; }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background-color: var(--brand-pink); box-shadow: 0 4px 8px rgba(230, 0, 126, 0.25); }
-        .btn-primary:hover { background-color: #bd0066; }
-        .btn-success { background-color: var(--success); }
-        .btn-danger { background-color: #e64980; opacity: 0.95; font-size: 13px; padding: 10px; }
-        .btn-delete { background-color: var(--danger); padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 6px; width: auto; margin: 0; }
-        
-        .records-title { font-weight: bold; margin-bottom: 12px; color: white; }
-        .record-item { background: white; padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 6px solid var(--brand-pink); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .record-info p { font-size: 13px; margin-bottom: 2px; color: #6c757d; }
-        .badge-placa { background: var(--bg-corporate); color: white; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 13px; display: inline-block; margin-bottom: 4px; }
-        .record-val { text-align: right; font-weight: bold; font-size: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-        
-        /* Contenedor del Tablero de Gráficos en el Celular */
-        .chart-container { background: white; padding: 15px; border-radius: 16px; border: 3px solid var(--brand-pink); margin-bottom: 15px; }
-        .chart-title { font-size: 14px; font-weight: bold; color: var(--bg-corporate); text-align: center; margin-bottom: 10px; text-transform: uppercase; }
-        canvas { max-width: 100%; margin-bottom: 15px; }
-    </style>
+    <style>
+        :root { 
+            --bg-corporate: #00469c;   /* Azul Rey Dominante */
+            --brand-pink: #e6007e;     /* Rosado/Magenta del Elefante */
+            --success: #2b8a3e;       /* Verde Financiero */
+            --danger: #c92a2a;        /* Rojo Crítico */
+            --dark: #1a2530; 
+            --light: #f8f9fa;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-corporate); color: var(--dark); padding: 10px; padding-bottom: 40px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        
+        header { 
+            text-align: center; padding: 20px 0 15px 0; color: white; font-weight: bold; font-size: 24px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .brand-logo {
+            max-width: 180px; max-height: 75px; width: auto; height: auto; border-radius: 8px;
+            object-fit: contain; padding: 6px; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .stat-card { background: white; padding: 14px; border-radius: 14px; text-align: center; border: 3px solid var(--brand-pink); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .stat-label { font-size: 11px; text-transform: uppercase; color: #6c757d; font-weight: bold; margin-bottom: 5px; }
+        .stat-value { font-size: 20px; font-weight: bold; color: var(--bg-corporate); }
+        .stat-card.recaudo .stat-value { color: var(--success); }
+        
+        .card { background: white; padding: 20px; border-radius: 16px; border: 3px solid var(--brand-pink); box-shadow: 0 6px 15px rgba(0,0,0,0.15); margin-bottom: 15px; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #495057; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 15px; background-color: var(--light); outline: none; }
+        input:focus, select:focus { border-color: var(--brand-pink); background-color: white; box-shadow: 0 0 0 3px rgba(230, 0, 126, 0.15); }
+        
+        .alert-box { background-color: #fff4e6; border: 1px dashed #fd7e14; border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+        
+        .btn { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; color: white; transition: background 0.2s, transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background-color: var(--brand-pink); box-shadow: 0 4px 8px rgba(230, 0, 126, 0.25); }
+        .btn-primary:hover { background-color: #bd0066; }
+        .btn-success { background-color: var(--success); }
+        .btn-danger { background-color: #e64980; opacity: 0.95; font-size: 13px; padding: 10px; }
+        .btn-delete { background-color: var(--danger); padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 6px; width: auto; margin: 0; }
+        
+        .records-title { font-weight: bold; margin-bottom: 12px; color: white; }
+        .record-item { background: white; padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 6px solid var(--brand-pink); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .record-info p { font-size: 13px; margin-bottom: 2px; color: #6c757d; }
+        .badge-placa { background: var(--bg-corporate); color: white; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 13px; display: inline-block; margin-bottom: 4px; }
+        .record-val { text-align: right; font-weight: bold; font-size: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        
+        /* Contenedor del Tablero de Gráficos en el Celular */
+        .chart-container { background: white; padding: 15px; border-radius: 16px; border: 3px solid var(--brand-pink); margin-bottom: 15px; }
+        .chart-title { font-size: 14px; font-weight: bold; color: var(--bg-corporate); text-align: center; margin-bottom: 10px; text-transform: uppercase; }
+        canvas { max-width: 100%; margin-bottom: 15px; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <img src="logo.jpg" alt="Logo Cliente" class="brand-logo" onerror="this.style.display='none';">
-        <span style="letter-spacing: 1px; margin-top: 5px;">WASH CONTROL PRO</span>
-    </header>
+    <header>
+        <img src="logo.jpg" alt="Logo Cliente" class="brand-logo" onerror="this.style.display='none';">
+        <span style="letter-spacing: 1px; margin-top: 5px;">WASH CONTROL PRO</span>
+    </header>
 
-    <!-- KPI rápidos de Pista -->
-    <div class="dashboard">
-        <div class="stat-card">
-            <div class="stat-label">Vehículos Hoy</div>
-            <div class="stat-value" id="count-hoy">0</div>
-        </div>
-        <div class="stat-card recaudo">
-            <div class="stat-label">Utilidad Dueño (97%)</div>
-            <div class="stat-value" id="utilidad-hoy">$0</div>
-        </div>
-    </div>
+    <!-- KPI rápidos de Pista -->
+    <div class="dashboard">
+        <div class="stat-card">
+            <div class="stat-label">Vehículos Hoy</div>
+            <div class="stat-value" id="count-hoy">0</div>
+        </div>
+        <div class="stat-card recaudo">
+            <div class="stat-label">Utilidad Dueño (97%)</div>
+            <div class="stat-value" id="utilidad-hoy">$0</div>
+        </div>
+    </div>
 
-    <!-- Formulario de Registro -->
-    <div class="card">
-        <form id="form-lavadero">
-            <div class="form-group">
-                <label>Placa del Vehículo</label>
-                <input type="text" id="placa" placeholder="EJ: XYZ123" required style="text-transform: uppercase;">
-            </div>
-            <div class="form-group">
-                <label>Nombre del Cliente</label>
-                <input type="text" id="cliente" placeholder="Nombre del propietario" required>
-            </div>
-            <div class="form-group">
-                <label>Número de Celular</label>
-                <input type="tel" id="celular" placeholder="Ej: 3101234567" required>
-            </div>
-            <div class="form-group">
-                <label>Tipo de Vehículo</label>
-                <select id="tipo-vehiculo" required onchange="cargarServicios()">
-                    <option value="">Seleccione...</option>
-                    <option value="Moto">Motocicleta / Moto</option>
-                    <option value="Sedán">Automóvil Sedán</option>
-                    <option value="Camioneta">Camioneta / SUV</option>
-                    <option value="Van">Van</option>
-                    <option value="Camión Pequeño">Camión Pequeño</option>
-                    <option value="Camión Grande">Camión Grande</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Tipo de Servicio</label>
-                <select id="servicio" required onchange="asignarPrecio()">
-                    <option value="">Seleccione...</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Valor a Cancelar ($)</label>
-                <input type="number" id="valor" required>
-            </div>
-            <div class="form-group">
-                <label>Operario / Lavador Asignado</label>
-                <select id="operario" required>
-                    <option value="">Seleccione lavador...</option>
-                    <option value="Lavador 1">Lavador 1</option>
-                    <option value="Lavador 2">Lavador 2</option>
-                    <option value="Lavador 3">Lavador 3</option>
-                    <option value="Lavador 4">Lavador 4</option>
-                </select>
-            </div>
-            <div class="alert-box">
-                <label style="color: #d9480f; display: flex; align-items: center; gap: 4px;">🛡️ Inventario / Objetos de Valor</label>
-                <input type="text" id="objetos-valor" placeholder="Ej: Ninguno" required>
-            </div>
+    <!-- Formulario de Registro -->
+    <div class="card">
+        <form id="form-lavadero">
+            <div class="form-group">
+                <label>Placa del Vehículo</label>
+                <input type="text" id="placa" placeholder="EJ: XYZ123" required style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Nombre del Cliente</label>
+                <input type="text" id="cliente" placeholder="Nombre del propietario" required>
+            </div>
+            <div class="form-group">
+                <label>Número de Celular</label>
+                <input type="tel" id="celular" placeholder="Ej: 3101234567" required>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Vehículo</label>
+                <select id="tipo-vehiculo" required onchange="cargarServicios()">
+                    <option value="">Seleccione...</option>
+                    <option value="Moto">Motocicleta / Moto</option>
+                    <option value="Sedán">Automóvil Sedán</option>
+                    <option value="Camioneta">Camioneta / SUV</option>
+                    <option value="Van">Van</option>
+                    <option value="Camión Pequeño">Camión Pequeño</option>
+                    <option value="Camión Grande">Camión Grande</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Servicio</label>
+                <select id="servicio" required onchange="asignarPrecio()">
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Valor a Cancelar ($)</label>
+                <input type="number" id="valor" required>
+            </div>
+            <div class="form-group">
+                <label>Operario / Lavador Asignado</label>
+                <select id="operario" required>
+                    <option value="">Seleccione lavador...</option>
+                    <option value="Lavador 1">Lavador 1</option>
+                    <option value="Lavador 2">Lavador 2</option>
+                    <option value="Lavador 3">Lavador 3</option>
+                    <option value="Lavador 4">Lavador 4</option>
+                </select>
+            </div>
+            <div class="alert-box">
+                <label style="color: #d9480f; display: flex; align-items: center; gap: 4px;">🛡️ Inventario / Objetos de Valor</label>
+                <input type="text" id="objetos-valor" placeholder="Ej: Ninguno" required>
+            </div>
 
-            <button type="button" class="btn btn-primary" onclick="registrarTurno()">Registrar Ingreso y Turno</button>
-        </form>
-    </div>
+            <button type="button" class="btn btn-primary" onclick="registrarTurno()">Registrar Ingreso y Turno</button>
+        </form>
+    </div>
 
-    <!-- TABLERO DE GRÁFICOS EN VIVO EN EL CELULAR -->
-    <div class="chart-container">
-        <div class="chart-title">📊 Analítica de Pista (Gráficos en Vivo)</div>
-        <canvas id="chartVehiculos"></canvas>
-        <canvas id="chartOperarios"></canvas>
-    </div>
+    <!-- TABLERO DE GRÁFICOS EN VIVO EN EL CELULAR -->
+    <div class="chart-container">
+        <div class="chart-title">📊 Analítica de Pista (Gráficos en Vivo)</div>
+        <canvas id="chartVehiculos"></canvas>
+        <canvas id="chartOperarios"></canvas>
+    </div>
 
-    <button class="btn btn-success" onclick="exportarExcelPremium()">📥 Descargar Dashboard e Historial en Excel</button>
-    <button class="btn btn-danger" onclick="reiniciarJornada()">⚠️ Reiniciar Jornada (Solo Dueño)</button>
+    <button class="btn btn-success" onclick="exportarExcelPremium()">📥 Descargar Dashboard e Historial en Excel</button>
+    <button class="btn btn-danger" onclick="reiniciarJornada()">⚠️ Reiniciar Jornada (Solo Dueño)</button>
 
-    <div class="card" style="border-top: 8px solid var(--brand-pink);">
-        <div class="records-title" style="color: var(--dark);">Movimientos de la Jornada:</div>
-        <div id="lista-registros"></div>
-    </div>
+    <div class="card" style="border-top: 8px solid var(--brand-pink);">
+        <div class="records-title" style="color: var(--dark);">Movimientos de la Jornada:</div>
+        <div id="lista-registros"></div>
+    </div>
 </div>
 
 <script>
-    const tarifas = {
-        "Moto":           { "Enjuague": 20000, "Abajo": 30000, "Motor": 0, "De primera calidad": 45000 },
-        "Sedán":          { "Enjuague": 25000, "Abajo": 55000, "Motor": 80000, "De primera calidad": 135000 },
-        "Camioneta":      { "Enjuague": 35000, "Abajo": 65000, "Motor": 100000, "De primera calidad": 150000 },
-        "Van":            { "Enjuague": 45000, "Abajo": 75000, "Motor": 120000, "De primera calidad": 170000 },
-        "Camión Pequeño": { "Enjuague": 60000, "Abajo": 85000, "Motor": 150000, "De primera calidad": 200000 },
-        "Camión Grande":  { "Enjuague": 80000, "Abajo": 100000, "Motor": 180000, "De primera calidad": 250000 }
-    };
+    const tarifas = {
+        "Moto":           { "Enjuague": 20000, "Abajo": 30000, "Motor": 0, "De primera calidad": 45000 },
+        "Sedán":          { "Enjuague": 25000, "Abajo": 55000, "Motor": 80000, "De primera calidad": 135000 },
+        "Camioneta":      { "Enjuague": 35000, "Abajo": 65000, "Motor": 100000, "De primera calidad": 150000 },
+        "Van":            { "Enjuague": 45000, "Abajo": 75000, "Motor": 120000, "De primera calidad": 170000 },
+        "Camión Pequeño": { "Enjuague": 60000, "Abajo": 85000, "Motor": 150000, "De primera calidad": 200000 },
+        "Camión Grande":  { "Enjuague": 80000, "Abajo": 100000, "Motor": 180000, "De primera calidad": 250000 }
+    };
 
-    let registros = JSON.parse(localStorage.getItem('datos_control_lavado_premium')) || [];
-    let chartV, chartO;
+    let registros = JSON.parse(localStorage.getItem('datos_control_lavado_premium')) || [];
+    let chartV, chartO;
 
-    function cargarServicios() {
-        const tipo = document.getElementById('tipo-vehiculo').value;
-        const servicioSelect = document.getElementById('servicio');
-        servicioSelect.innerHTML = '<option value="">Seleccione...</option>';
-        if(tipo && tarifas[tipo]) {
-            for(let serv in tarifas[tipo]) {
-                let opt = document.createElement('option');
-                opt.value = serv;
-                opt.textContent = (tipo === "Moto" && serv === "Motor") ? "Motor (N/A)" : serv;
-                servicioSelect.appendChild(opt);
-            }
-        }
-        document.getElementById('valor').value = '';
-    }
+    function cargarServicios() {
+        const tipo = document.getElementById('tipo-vehiculo').value;
+        const servicioSelect = document.getElementById('servicio');
+        servicioSelect.innerHTML = '<option value="">Seleccione...</option>';
+        if(tipo && tarifas[tipo]) {
+            for(let serv in tarifas[tipo]) {
+                let opt = document.createElement('option');
+                opt.value = serv;
+                opt.textContent = (tipo === "Moto" && serv === "Motor") ? "Motor (N/A)" : serv;
+                servicioSelect.appendChild(opt);
+            }
+        }
+        document.getElementById('valor').value = '';
+    }
 
-    function asignarPrecio() {
-        const tipo = document.getElementById('tipo-vehiculo').value;
-        const serv = document.getElementById('servicio').value;
-        if(tipo && serv && tarifas[tipo]) {
-            if (tipo === "Moto" && serv === "Motor") {
-                document.getElementById('valor').value = 0;
-                alert("❌ Servicio de Motor no disponible para Motocicletas.");
-            } else {
-                document.getElementById('valor').value = tarifas[tipo][serv];
-            }
-        }
-    }
+    function asignarPrecio() {
+        const tipo = document.getElementById('tipo-vehiculo').value;
+        const serv = document.getElementById('servicio').value;
+        if(tipo && serv && tarifas[tipo]) {
+            if (tipo === "Moto" && serv === "Motor") {
+                document.getElementById('valor').value = 0;
+                alert("❌ Servicio de Motor no disponible para Motocicletas.");
+            } else {
+                document.getElementById('valor').value = tarifas[tipo][serv];
+            }
+        }
+    }
 
-    function registrarTurno() {
-        if(!document.getElementById('form-lavadero').checkValidity()) {
-            alert("Por favor complete todos los campos obligatorios.");
-            return;
-        }
-        const ahora = new Date();
-        
-        // Formatear Fecha (DD/MM/AAAA) y Hora (HH:MM AM/PM) juntas por defecto
-        const dia = String(ahora.getDate()).padStart(2, '0');
-        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-        const anio = ahora.getFullYear();
-        const fechaFormateada = `${dia}/${mes}/${anio}`;
-        const horaFormateada = ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
-        const registroTiempoCompleto = `${fechaFormateada} - ${horaFormateada}`;
+    function registrarTurno() {
+        if(!document.getElementById('form-lavadero').checkValidity()) {
+            alert("Por favor complete todos los campos obligatorios.");
+            return;
+        }
+        const ahora = new Date();
+        
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const anio = ahora.getFullYear();
+        const fechaFormateada = `${dia}/${mes}/${anio}`;
+        const horaFormateada = ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
+        const registroTiempoCompleto = `${fechaFormateada} - ${horaFormateada}`;
 
-        const valorPagado = parseFloat(document.getElementById('valor').value);
+        const valorPagado = parseFloat(document.getElementById('valor').value);
 
-        const nuevoRegistro = {
-            turno: registros.length + 1,
-            hora: registroTiempoCompleto, // Almacena Fecha y Hora combinadas
-            placa: document.getElementById('placa').value.toUpperCase().replace(/\s+/g, ''),
-            cliente: document.getElementById('cliente').value,
-            celular: document.getElementById('celular').value,
-            tipoVehiculo: document.getElementById('tipo-vehiculo').value,
-            servicio: document.getElementById('servicio').value,
-            valor: valorPagado,
-            operario: document.getElementById('operario').value,
-            objetosValor: document.getElementById('objetos-valor').value,
-            comision: valorPagado * 0.03
-        };
+        const nuevoRegistro = {
+            turno: registros.length + 1,
+            hora: registroTiempoCompleto, 
+            placa: document.getElementById('placa').value.toUpperCase().replace(/\s+/g, ''),
+            cliente: document.getElementById('cliente').value,
+            celular: document.getElementById('celular').value,
+            tipoVehiculo: document.getElementById('tipo-vehiculo').value,
+            servicio: document.getElementById('servicio').value,
+            valor: valorPagado,
+            operario: document.getElementById('operario').value,
+            objetosValor: document.getElementById('objetos-valor').value,
+            comision: valorPagado * 0.03
+        };
 
-        registros.push(nuevoRegistro);
-        localStorage.setItem('datos_control_lavado_premium', JSON.stringify(registros));
-        document.getElementById('form-lavadero').reset();
-        document.getElementById('servicio').innerHTML = '<option value="">Seleccione...</option>';
-        all_checks_update();
-    }
+        registros.push(nuevoRegistro);
+        localStorage.setItem('datos_control_lavado_premium', JSON.stringify(registros));
+        document.getElementById('form-lavadero').reset();
+        document.getElementById('servicio').innerHTML = '<option value="">Seleccione...</option>';
+        all_checks_update();
+    }
 
-    function eliminarRegistro(idx) {
-        if(confirm("🔑 CONTROL DE AUDITORÍA\n\n¿Desea eliminar este movimiento de la pista?")) {
-            registros.splice(idx, 1);
-            registros.forEach((reg, i) => reg.turno = i + 1);
-            localStorage.setItem('datos_control_lavado_premium', JSON.stringify(registros));
-            all_checks_update();
-        }
-    }
+    function eliminarRegistro(idx) {
+        if(confirm("🔑 CONTROL DE AUDITORÍA\n\n¿Desea eliminar este movimiento de la pista?")) {
+            registros.splice(idx, 1);
+            registros.forEach((reg, i) => reg.turno = i + 1);
+            localStorage.setItem('datos_control_lavado_premium', JSON.stringify(registros));
+            all_checks_update();
+        }
+    }
 
-    function reiniciarJornada() {
-        if(confirm("🚨 ATENCIÓN DUEÑO: ¿Confirma el cierre definitivo y borrado de la jornada de pista?")) {
-            registros = [];
-            localStorage.removeItem('datos_control_lavado_premium');
-            all_checks_update();
-        }
-    }
+    function reiniciarJornada() {
+        if(confirm("🚨 ATENCIÓN DUEÑO: ¿Confirma el cierre definitivo y borrado de la jornada de pista?")) {
+            registros = [];
+            localStorage.removeItem('datos_control_lavado_premium');
+            all_checks_update();
+        }
+    }
 
-    function all_checks_update() {
-        const lista = document.getElementById('lista-registros');
-        lista.innerHTML = '';
-        let totalRecaudo = 0;
-        let totalComisiones = 0;
+    function all_checks_update() {
+        const lista = document.getElementById('lista-registros');
+        lista.innerHTML = '';
+        let totalRecaudo = 0;
+        let totalComisiones = 0;
 
-        document.getElementById('count-hoy').textContent = registros.length;
+        document.getElementById('count-hoy').textContent = registros.length;
 
-        let conteoVehiculos = {};
-        let produccionOperarios = {};
+        let conteoVehiculos = {};
+        let produccionOperarios = {};
 
-        registros.forEach((reg, index) => {
-            totalRecaudo += reg.valor;
-            totalComisiones += reg.comision;
+        registros.forEach((reg, index) => {
+            totalRecaudo += reg.valor;
+            totalComisiones += reg.comision;
 
-            conteoVehiculos[reg.tipoVehiculo] = (conteoVehiculos[reg.tipoVehiculo] || 0) + 1;
-            produccionOperarios[reg.operario] = (produccionOperarios[reg.operario] || 0) + reg.valor;
+            conteoVehiculos[reg.tipoVehiculo] = (conteoVehiculos[reg.tipoVehiculo] || 0) + 1;
+            produccionOperarios[reg.operario] = (produccionOperarios[reg.operario] || 0) + reg.valor;
 
-            const item = document.createElement('div');
-            item.className = 'record-item';
-            item.innerHTML = `
-                <div class="record-info">
-                    <span class="badge-placa">${reg.placa}</span>
-                    <p><strong>${reg.servicio}</strong> (${reg.tipoVehiculo})</p>
-                    <p>👷 ${reg.operario} | 🕒 ${reg.hora}</p>
-                    <p>🛡️ Ítems: ${reg.objetosValor}</p>
-                </div>
-                <div class="record-val">
-                    <span>$${reg.valor.toLocaleString()}</span>
-                    <span style="font-size:11px; color:var(--brand-pink)">Com: $${reg.comision.toLocaleString()}</span>
-                    <button class="btn btn-delete" onclick="eliminarRegistro(${index})">Eliminar</button>
-                </div>
-            `;
-            lista.appendChild(item);
-        });
+            const item = document.createElement('div');
+            item.className = 'record-item';
+            item.innerHTML = `
+                <div class="record-info">
+                    <span class="badge-placa">${reg.placa}</span>
+                    <p><strong>${reg.servicio}</strong> (${reg.tipoVehiculo})</p>
+                    <p>👷 ${reg.operario} | 🕒 ${reg.hora}</p>
+                    <p>🛡️ Ítems: ${reg.objetosValor}</p>
+                </div>
+                <div class="record-val">
+                    <span>$${reg.valor.toLocaleString()}</span>
+                    <span style="font-size:11px; color:var(--brand-pink)">Com: $${reg.comision.toLocaleString()}</span>
+                    <button class="btn btn-delete" onclick="eliminarRegistro(${index})">Eliminar</button>
+                </div>
+            `;
+            lista.appendChild(item);
+        });
 
-        document.getElementById('utilidad-hoy').textContent = '$' + (totalRecaudo - totalComisiones).toLocaleString();
-        actualizarGraficosMovil(conteoVehiculos, produccionOperarios);
-    }
+        document.getElementById('utilidad-hoy').textContent = '$' + (totalRecaudo - totalComisiones).toLocaleString();
+        actualizarGraficosMovil(conteoVehiculos, produccionOperarios);
+    }
 
-    function actualizarGraficosMovil(vehiculosData, operariosData) {
-        if(chartV) chartV.destroy();
-        if(chartO) chartO.destroy();
+    function actualizarGraficosMovil(vehiculosData, operariosData) {
+        if(chartV) chartV.destroy();
+        if(chartO) chartO.destroy();
 
-        const ctxV = document.getElementById('chartVehiculos').getContext('2d');
-        chartV = new Chart(ctxV, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(vehiculosData),
-                datasets: [{
-                    data: Object.values(vehiculosData),
-                    backgroundColor: ['#00469c', '#e6007e', '#00a8e5', '#2b8a3e', '#fd7e14']
-                }]
-            },
-            options: { plugins: { title: { display: true, text: 'Tráfico por Tipo de Vehículo' } } }
-        });
+        const ctxV = document.getElementById('chartVehiculos').getContext('2d');
+        chartV = new Chart(ctxV, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(vehiculosData),
+                datasets: [{
+                    data: Object.values(vehiculosData),
+                    backgroundColor: ['#00469c', '#e6007e', '#00a8e5', '#2b8a3e', '#fd7e14']
+                }]
+            },
+            options: { plugins: { title: { display: true, text: 'Tráfico por Tipo de Vehículo' } } }
+        });
 
-        const ctxO = document.getElementById('chartOperarios').getContext('2d');
-        chartO = new Chart(ctxO, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(operariosData),
-                datasets: [{
-                    label: 'Recaudo por Operario ($)',
-                    data: Object.values(operariosData),
-                    backgroundColor: '#e6007e'
-                }]
-            },
-            options: { plugins: { title: { display: true, text: 'Rendimiento de Lavadores ($)' } } }
-        });
-    }
+        const ctxO = document.getElementById('chartOperarios').getContext('2d');
+        chartO = new Chart(ctxO, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(operariosData),
+                datasets: [{
+                    label: 'Recaudo por Operario ($)',
+                    data: Object.values(operariosData),
+                    backgroundColor: '#e6007e'
+                }]
+            },
+            options: { plugins: { title: { display: true, text: 'Rendimiento de Lavadores ($)' } } }
+        });
+    }
 
-    // EXPORTACIÓN CON EXCELJS INYECTANDO FECHA Y HORA EN LA COLUMNA DE INGRESO
-    async function exportarExcelPremium() {
-        if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
+    async function exportarExcelPremium() {
+        if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
 
-        const workbook = new ExcelJS.Workbook();
-        
-        // PESTAÑA 1: DETALLE DE JORNADA (Base de datos acumulable)
-        const wsJornada = workbook.addWorksheet('🚗 JORNADA DETALLADA', { views: [{ showGridLines: true }] });
-        const headersJornada = [
-            "Turno", "Fecha y Hora Ingreso", "Placa", "Cliente", "Celular", "Tipo de Vehículo", "Servicio Solicitado", "Valor Pagado ($)", "Lavador Asignado", "Inventario / Objetos Valor", "Comisión Lavador"
-        ];
-        wsJornada.addRow(headersJornada);
-        
-        wsJornada.getRow(1).eachCell(cell => {
-            cell.font = { name: 'Segoe UI', bold: true, color: { argb: 'FFFFFF' } };
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00469C' } };
-            cell.alignment = { horizontal: 'center' };
-        });
+        const workbook = new ExcelJS.Workbook();
+        
+        // PESTAÑA 1: DETALLE DE JORNADA
+        const wsJornada = workbook.addWorksheet('🚗 JORNADA DETALLADA', { views: [{ showGridLines: true }] });
+        const headersJornada = [
+            "Turno", "Fecha y Hora Ingreso", "Placa", "Cliente", "Celular", "Tipo de Vehículo", "Servicio Solicitado", "Valor Pagado ($)", "Lavador Asignado", "Inventario / Objetos Valor", "Comisión Lavador"
+        ];
+        wsJornada.addRow(headersJornada);
+        
+        wsJornada.getRow(1).eachCell(cell => {
+            cell.font = { name: 'Segoe UI', bold: true, color: { argb: 'FFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00469C' } };
+            cell.alignment = { horizontal: 'center' };
+        });
 
-        registros.forEach(reg => {
-            wsJornada.addRow([
-                reg.turno, reg.hora, reg.placa, reg.cliente, reg.celular, reg.tipoVehiculo, reg.servicio, reg.valor, reg.operario, reg.objetosValor, reg.comision
-            ]);
-        });
+        registros.forEach(reg => {
+            wsJornada.addRow([
+                reg.turno, reg.hora, reg.placa, reg.cliente, reg.celular, reg.tipoVehiculo, reg.servicio, reg.valor, reg.operario, reg.objetosValor, reg.comision
+            ]);
+        });
 
-        for(let i = 2; i <= registros.length + 1; i++) {
-            wsJornada.getCell(`H${i}`).numberFormat = '"$"#,##0';
-            wsJornada.getCell(`K${i}`).numberFormat = '"$"#,##0';
-        }
+        for(let i = 2; i <= registros.length + 1; i++) {
+            wsJornada.getCell(`H${i}`).numberFormat = '"$"#,##0';
+            wsJornada.getCell(`K${i}`).numberFormat = '"$"#,##0';
+        }
 
-        // PESTAÑA 2: DASHBOARD CORPORATIVO (Estructura fija blindada de alta precisión)
-        const wsDashboard = workbook.addWorksheet('📈 DASHBOARD EJECUTIVO', { views: [{ showGridLines: true }] });
+        // PESTAÑA 2: DASHBOARD CORPORATIVO
+        const wsDashboard = workbook.addWorksheet('📈 DASHBOARD EJECUTIVO', { views: [{ showGridLines: true }] });
 
-        wsDashboard.mergeCells('A1:D2');
-        const titleCell = wsDashboard.getCell('A1');
-        titleCell.value = "WASH CONTROL PRO - TABLERO DE CONTROL CORPORATIVO";
-        titleCell.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FFFFFF' } };
-        titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00469C' } };
-        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        wsDashboard.mergeCells('A1:D2');
+        const titleCell = wsDashboard.getCell('A1');
+        titleCell.value = "WASH CONTROL PRO - TABLERO DE CONTROL CORPORATIVO";
+        titleCell.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FFFFFF' } };
+        titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00469C' } };
+        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-        // Módulo KPI Financieros
-        wsDashboard.getCell('A4').value = "KPI FINANCIEROS ACUMULADOS";
-        wsDashboard.getCell('A4').font = { name: 'Segoe UI', bold: true, color: { argb: '00469C' } };
-        
-        wsDashboard.getCell('A5').value = "Recaudo Bruto Total:";
-        wsDashboard.getCell('B5').value = { formula: "SUM('🚗 JORNADA DETALLADA'!H2:H5000)" };
-        
-        wsDashboard.getCell('A6').value = "Total Comisiones Operarios (3%):";
-        wsDashboard.getCell('B6').value = { formula: "SUM('🚗 JORNADA DETALLADA'!K2:K5000)" };
-        
-        wsDashboard.getCell('A7').value = "Utilidad Neta del Dueño:";
-        wsDashboard.getCell('B7').value = { formula: "B5-B6" };
+        wsDashboard.getCell('A4').value = "KPI FINANCIEROS ACUMULADOS";
+        wsDashboard.getCell('A4').font = { name: 'Segoe UI', bold: true, color: { argb: '00469C' } };
+        
+        wsDashboard.getCell('A5').value = "Recaudo Bruto Total:";
+        wsDashboard.getCell('B5').value = { formula: "SUM('🚗 JORNADA DETALLADA'!H2:H5000)" };
+        
+        wsDashboard.getCell('A6').value = "Total Comisiones Operarios (3%):";
+        wsDashboard.getCell('B6').value = { formula: "SUM('🚗 JORNADA DETALLADA'!K2:K5000)" };
+        
+        wsDashboard.getCell('A7').value = "Utilidad Neta del Dueño:";
+        wsDashboard.getCell('B7').value = { formula: "B5-B6" };
 
-        ['B5', 'B6', 'B7'].forEach(cellRef => {
-            wsDashboard.getCell(cellRef).numberFormat = '"$"#,##0';
-            wsDashboard.getCell(cellRef).font = { name: 'Segoe UI', bold: true };
-        });
+        ['B5', 'B6', 'B7'].forEach(cellRef => {
+            wsDashboard.getCell(cellRef).numberFormat = '"$"#,##0';
+            wsDashboard.getCell(cellRef).font = { name: 'Segoe UI', bold: true };
+        });
 
-        // Módulo de Resumen de Flota Completo (6 Categorías con Camiones alineados fijamente)
-        wsDashboard.getCell('E4').value = "MÉTRICAS COMERCIALES DE FLOTA";
-        wsDashboard.getCell('E4').font = { name: 'Segoe UI', bold: true, color: { argb: '00469C' } };
-        wsDashboard.getCell('E5').value = "Flota";
-        wsDashboard.getCell('F5').value = "Cant.";
-        wsDashboard.getCell('E5').font = { name: 'Segoe UI', bold: true };
-        wsDashboard.getCell('F5').font = { name: 'Segoe UI', bold: true };
+        wsDashboard.getCell('E4').value = "MÉTRICAS COMERCIALES DE FLOTA";
+        wsDashboard.getCell('E4').font = { name: 'Segoe UI', bold: true, color: { argb: '00469C' } };
+        wsDashboard.getCell('E5').value = "Flota";
+        wsDashboard.getCell('F5').value = "Cant.";
+        wsDashboard.getCell('E5').font = { name: 'Segoe UI', bold: true };
+        wsDashboard.getCell('F5').font = { name: 'Segoe UI', bold: true };
 
-        const clasesVehiculos = ["Sedán", "Camioneta", "Moto", "Van", "Camión Pequeño", "Camión Grande"];
-        clasesVehiculos.forEach((clase, index) => {
-            const rowNum = 6 + index;
-            wsDashboard.getCell(`E${rowNum}`).value = clase;
-            wsDashboard.getCell(`F${rowNum}`).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "${clase}")` };
-        });
+        const clasesVehiculos = ["Sedán", "Camioneta", "Moto", "Van", "Camión Pequeño", "Camión Grande"];
+        clasesVehiculos.forEach((clase, index) => {
+            const rowNum = 6 + index;
+            wsDashboard.getCell(`E${rowNum}`).value = clase;
+            wsDashboard.getCell(`F${rowNum}`).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "${clase}")` };
+        });
 
-        // Módulo de Liquidación de Operarios (Ubicado en la fila 13)
-        wsDashboard.getCell('A13').value = "LIQUIDACIÓN DE NÓMINA JORNADA (RANGO EXTENDIDO)";
-        wsDashboard.getCell('A13').font = { name: 'Segoe UI', bold: true, color: { argb: 'E6007E' } };
+        wsDashboard.getCell('A13').value = "LIQUIDACIÓN DE NÓMINA JORNADA (RANGO EXTENDIDO)";
+        wsDashboard.getCell('A13').font = { name: 'Segoe UI', bold: true, color: { argb: 'E6007E' } };
 
-        const headersNomina = ["Operario", "Vehículos Atendidos", "Total Dinero Procesado", "Comisión a Pagar (3%)"];
-        wsDashboard.getCell('A15').value = headersNomina[0];
-        wsDashboard.getCell('B15').value = headersNomina[1];
-        wsDashboard.getCell('C15').value = headersNomina[2];
-        wsDashboard.getCell('D15').value = headersNomina[3];
-        
-        wsDashboard.getRow(15).eachCell(cell => {
-            cell.font = { name: 'Segoe UI', bold: true };
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F2F2F2' } };
-        });
+        const headersNomina = ["Operario", "Vehículos Atendidos", "Total Dinero Procesado", "Comisión a Pagar (3%)"];
+        wsDashboard.getCell('A15').value = headersNomina[0];
+        wsDashboard.getCell('B15').value = headersNomina[1];
+        wsDashboard.getCell('C15').value = headersNomina[2];
+        wsDashboard.getCell('D15').value = headersNomina[3];
+        
+        wsDashboard.getRow(15).eachCell(cell => {
+            cell.font = { name: 'Segoe UI', bold: true };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F2F2F2' } };
+        });
 
-        const operarios = ["Lavador 1", "Lavador 2", "Lavador 3", "Lavador 4"];
-        operarios.forEach((op, index) => {
-            const rowNum = 16 + index;
-            wsDashboard.getCell(`A${rowNum}`).value = op;
-            wsDashboard.getCell(`B${rowNum}`).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` };
-            wsDashboard.getCell(`C${rowNum}`).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
-            wsDashboard.getCell(`D${rowNum}`).value = { formula: `C${rowNum}*0.03` };
-            
-            wsDashboard.getCell(`C${rowNum}`).numberFormat = '"$"#,##0';
-            wsDashboard.getCell(`D${rowNum}`).numberFormat = '"$"#,##0';
-        });
+        const operarios = ["Lavador 1", "Lavador 2", "Lavador 3", "Lavador 4"];
+        operarios.forEach((op, index) => {
+            const rowNum = 16 + index;
+            wsDashboard.getCell('A' + rowNum).value = op;
+            wsDashboard.getCell('B' + rowNum).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` };
+            wsDashboard.getCell('C' + rowNum).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
+            wsDashboard.getCell('D' + rowNum).value = { formula: `C${rowNum}*0.03` };
+            
+            wsDashboard.getCell('C' + rowNum).numberFormat = '"$"#,##0';
+            wsDashboard.getCell('D' + rowNum).numberFormat = '"$"#,##0';
+        });
 
-        // Ajustar ancho para dar cabida al nuevo formato de Fecha y Hora largo sin que tape texto
-        wsJornada.columns.forEach(column => { column.width = 25; });
-        wsDashboard.columns.forEach(column => { column.width = 25; });
+        wsJornada.columns.forEach(column => { column.width = 25; });
+        wsDashboard.columns.forEach(column => { column.width = 25; });
 
-        // Descargar el archivo procesado de alto nivel
-        workbook.xlsx.writeBuffer().then(function(buffer) {
-            const fechaArchivo = new Date().toISOString().slice(0,10);
-            saveAs(new Blob([buffer]), `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
-        });
-    }
+        workbook.xlsx.writeBuffer().then(function(buffer) {
+            const fechaArchivo = new Date().toISOString().slice(0,10);
+            saveAs(new Blob([buffer]), `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
+        });
+    }
 
-    all_checks_update();
+    all_checks_update();
 </script>
 </body>
 </html>
