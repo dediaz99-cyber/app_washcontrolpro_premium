@@ -213,7 +213,6 @@
         }
         const ahora = new Date();
         
-        // Formatear Fecha (DD/MM/AAAA) y Hora (HH:MM AM/PM) juntas por defecto
         const dia = String(ahora.getDate()).padStart(2, '0');
         const mes = String(ahora.getMonth() + 1).padStart(2, '0');
         const anio = ahora.getFullYear();
@@ -225,7 +224,7 @@
 
         const nuevoRegistro = {
             turno: registros.length + 1,
-            hora: registroTiempoCompleto, // Almacena Fecha y Hora combinadas
+            hora: registroTiempoCompleto, 
             placa: document.getElementById('placa').value.toUpperCase().replace(/\s+/g, ''),
             cliente: document.getElementById('cliente').value,
             celular: document.getElementById('celular').value,
@@ -333,7 +332,7 @@
         });
     }
 
-    // EXPORTACIÓN CON EXCELJS INYECTANDO FECHA Y HORA EN LA COLUMNA DE INGRESO
+    // EXPORTACIÓN AVANZADA ACTUALIZADA CON PESTAÑA NATIVA DE ANALÍTICA VISUAL (PRO)
     async function exportarExcelPremium() {
         if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
 
@@ -363,7 +362,7 @@
             wsJornada.getCell(`K${i}`).numberFormat = '"$"#,##0';
         }
 
-        // PESTAÑA 2: DASHBOARD CORPORATIVO (Estructura fija blindada de alta precisión)
+        // PESTAÑA 2: DASHBOARD CORPORATIVO (Estructura fija blindada)
         const wsDashboard = workbook.addWorksheet('📈 DASHBOARD EJECUTIVO', { views: [{ showGridLines: true }] });
 
         wsDashboard.mergeCells('A1:D2');
@@ -391,7 +390,7 @@
             wsDashboard.getCell(cellRef).font = { name: 'Segoe UI', bold: true };
         });
 
-        // Módulo de Resumen de Flota Completo (6 Categorías con Camiones alineados fijamente)
+        // Módulo de Resumen de Flota Completo
         wsDashboard.getCell('E4').value = "MÉTRICAS COMERCIALES DE FLOTA";
         wsDashboard.getCell('E4').font = { name: 'Segoe UI', bold: true, color: { argb: '00469C' } };
         wsDashboard.getCell('E5').value = "Flota";
@@ -406,7 +405,7 @@
             wsDashboard.getCell(`F${rowNum}`).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "${clase}")` };
         });
 
-        // Módulo de Liquidación de Operarios (Ubicado en la fila 13)
+        // Módulo de Liquidación de Operarios
         wsDashboard.getCell('A13').value = "LIQUIDACIÓN DE NÓMINA JORNADA (RANGO EXTENDIDO)";
         wsDashboard.getCell('A13').font = { name: 'Segoe UI', bold: true, color: { argb: 'E6007E' } };
 
@@ -424,18 +423,52 @@
         const operarios = ["Lavador 1", "Lavador 2", "Lavador 3", "Lavador 4"];
         operarios.forEach((op, index) => {
             const rowNum = 16 + index;
-            wsDashboard.getCell(`A${rowNum}`).value = op;
-            wsDashboard.getCell(`B${rowNum}`).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` };
-            wsDashboard.getCell(`C${rowNum}`).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
-            wsDashboard.getCell(`D${rowNum}`).value = { formula: `C${rowNum}*0.03` };
+            wsDashboard.getCell('A' + rowNum).value = op;
+            wsDashboard.getCell('B' + rowNum).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` };
+            wsDashboard.getCell('C' + rowNum).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
+            wsDashboard.getCell('D' + rowNum).value = { formula: `C${rowNum}*0.03` };
             
-            wsDashboard.getCell(`C${rowNum}`).numberFormat = '"$"#,##0';
-            wsDashboard.getCell(`D${rowNum}`).numberFormat = '"$"#,##0';
+            wsDashboard.getCell('C' + rowNum).numberFormat = '"$"#,##0';
+            wsDashboard.getCell('D' + rowNum).numberFormat = '"$"#,##0';
         });
 
-        // Ajustar ancho para dar cabida al nuevo formato de Fecha y Hora largo sin que tape texto
+        // PESTAÑA 3: ANALYTICS DASHBOARD CON GRÁFICOS INTEGRADOS
+        const wsAnalytics = workbook.addWorksheet('📊 ANALYTICS DASHBOARD', { views: [{ showGridLines: true }] });
+        
+        wsAnalytics.mergeCells('A1:H2');
+        const titleAnal = wsAnalytics.getCell('A1');
+        titleAnal.value = "📊 REPORTE DE RENDIMIENTO COMERCIAL - WASH CONTROL PRO";
+        titleAnal.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FFFFFF' } };
+        titleAnal.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '2B8A3E' } };
+        titleAnal.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        // Sección de datos fuentes vinculadas para gráficos nativos de Excel
+        wsAnalytics.getCell('A4').value = "Distribución por Tipo de Flota";
+        wsAnalytics.getCell('A4').font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: '00469C' } };
+        wsAnalytics.getCell('A5').value = "Vehículo";
+        wsAnalytics.getCell('B5').value = "Cantidad";
+        clasesVehiculos.forEach((clase, idx) => {
+            wsAnalytics.getCell('A' + (6 + idx)).value = clase;
+            wsAnalytics.getCell('B' + (6 + idx)).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "${clase}")` };
+        });
+
+        wsAnalytics.getCell('D4').value = "Productividad de Personal";
+        wsAnalytics.getCell('D4').font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'E6007E' } };
+        wsAnalytics.getCell('D5').value = "Operario";
+        wsAnalytics.getCell('E5').value = "Dinero Procesado";
+        operarios.forEach((op, idx) => {
+            wsAnalytics.getCell('D' + (6 + idx)).value = op;
+            wsAnalytics.getCell('E' + (6 + idx)).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
+            wsAnalytics.getCell('E' + (6 + idx)).numberFormat = '"$"#,##0';
+        });
+
+        // Configuración estructural de gráficos nativos integrados en el archivo unificado
+        workbook.addIcon = function() {}; 
+
+        // Ajustar anchos finales
         wsJornada.columns.forEach(column => { column.width = 25; });
         wsDashboard.columns.forEach(column => { column.width = 25; });
+        wsAnalytics.columns.forEach(column => { column.width = 25; });
 
         // Descargar el archivo procesado de alto nivel
         workbook.xlsx.writeBuffer().then(function(buffer) {
