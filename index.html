@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WASH CONTROL PRO - PREMIUM</title>
     
-    <!-- Iconos para acceso directo en celular -->
     <link rel="icon" type="image/jpeg" href="head.jpg">
     <link rel="shortcut icon" type="image/jpeg" href="head.jpg">
     <link rel="apple-touch-icon" href="head.jpg">
 
-    <!-- Librerías de Alto Impacto para Gráficos en Vivo, ExcelJS y Descarga Segura -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -81,7 +79,6 @@
         <span style="letter-spacing: 1px; margin-top: 5px;">WASH CONTROL PRO</span>
     </header>
 
-    <!-- KPI rápidos de Pista -->
     <div class="dashboard">
         <div class="stat-card">
             <div class="stat-label">Vehículos Hoy</div>
@@ -93,7 +90,6 @@
         </div>
     </div>
 
-    <!-- Formulario de Registro -->
     <div class="card">
         <form id="form-lavadero">
             <div class="form-group">
@@ -149,7 +145,6 @@
         </form>
     </div>
 
-    <!-- TABLERO DE GRÁFICOS EN VIVO EN EL CELULAR -->
     <div class="chart-container">
         <div class="chart-title">📊 Analítica de Pista (Gráficos en Vivo)</div>
         <canvas id="chartVehiculos"></canvas>
@@ -332,6 +327,7 @@
         });
     }
 
+    // EXPORTACIÓN AVANZADA PREMIUM: 3 PESTAÑAS BLINDADAS DE ALTA INGENIERÍA CON EXCELJS
     async function exportarExcelPremium() {
         if(registros.length === 0) { alert("No hay datos registrados en la pista el día de hoy."); return; }
 
@@ -361,7 +357,7 @@
             wsJornada.getCell(`K${i}`).numberFormat = '"$"#,##0';
         }
 
-        // PESTAÑA 2: DASHBOARD CORPORATIVO
+        // PESTAÑA 2: DASHBOARD CORPORATIVO (Estructura Fija Avanzada)
         const wsDashboard = workbook.addWorksheet('📈 DASHBOARD EJECUTIVO', { views: [{ showGridLines: true }] });
 
         wsDashboard.mergeCells('A1:D2');
@@ -428,9 +424,85 @@
             wsDashboard.getCell('D' + rowNum).numberFormat = '"$"#,##0';
         });
 
-        wsJornada.columns.forEach(column => { column.width = 25; });
-        wsDashboard.columns.forEach(column => { column.width = 25; });
+        // PESTAÑA 3 ADICIONADA: 📊 ANALYTICS DASHBOARD (TU DISEÑO DE ALTO IMPACTO CORPORATIVO)
+        const wsAnalytics = workbook.addWorksheet('📊 ANALYTICS DASHBOARD', { views: [{ showGridLines: true }] });
+        
+        wsAnalytics.mergeCells('A1:K2');
+        const analyticsTitle = wsAnalytics.getCell('A1');
+        analyticsTitle.value = "🚗 ANALYTICS DASHBOARD — WASH CONTROL PRO";
+        analyticsTitle.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FFFFFF' } };
+        analyticsTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '00469C' } };
+        analyticsTitle.alignment = { horizontal: 'center', vertical: 'middle' };
 
+        wsAnalytics.getCell('A3').value = "Análisis automático · Hojas: JORNADA DETALLADA y DASHBOARD EJECUTIVO";
+        wsAnalytics.getCell('A3').font = { name: 'Segoe UI', size: 10, italic: true, color: { argb: '555555' } };
+
+        // Cabeceras de los KPI Maestros
+        const kpis = [
+            { posLabel: 'A5', posVal: 'A6', txt: 'RECAUDO BRUTO', formula: "='📈 DASHBOARD EJECUTIVO'!B5", fill: '00469C' },
+            { posLabel: 'C5', posVal: 'C6', txt: 'COMISIONES (3%)', formula: "='📈 DASHBOARD EJECUTIVO'!B6", fill: 'C92A2A' },
+            { posLabel: 'E5', posVal: 'E6', txt: 'UTILIDAD NETA', formula: "='📈 DASHBOARD EJECUTIVO'!B7", fill: '2B8A3E' },
+            { posLabel: 'G5', posVal: 'G6', txt: 'TICKET PROMEDIO', formula: "=AVERAGE('🚗 JORNADA DETALLADA'!H2:H5000)", fill: 'E6007E' },
+            { posLabel: 'I5', posVal: 'I6', txt: 'VALOR MÁXIMO', formula: "=MAX('🚗 JORNADA DETALLADA'!H2:H5000)", fill: 'D9480F' }
+        ];
+
+        kpis.forEach(kpi => {
+            wsAnalytics.getCell(kpi.posLabel).value = kpi.txt;
+            wsAnalytics.getCell(kpi.posLabel).font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFF' } };
+            wsAnalytics.getCell(kpi.posLabel).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: kpi.fill } };
+            wsAnalytics.getCell(kpi.posLabel).alignment = { horizontal: 'center' };
+
+            wsAnalytics.getCell(kpi.posVal).value = { formula: kpi.formula };
+            wsAnalytics.getCell(kpi.posVal).font = { name: 'Segoe UI', size: 13, bold: true };
+            wsAnalytics.getCell(kpi.posVal).numberFormat = '"$"#,##0';
+            wsAnalytics.getCell(kpi.posVal).alignment = { horizontal: 'center' };
+        });
+
+        // Bloque Intermedio: Análisis de Columnas
+        wsAnalytics.getCell('A9').value = "📋 ANÁLISIS DE COLUMNAS — JORNADA DETALLADA";
+        wsAnalytics.getCell('A9').font = { name: 'Segoe UI', size: 12, bold: true, color: { argb: '00469C' } };
+
+        // Tablas Cruzadas (Flota, Servicios y Lavadores)
+        wsAnalytics.getCell('A11').value = "Tipo de Vehículo"; wsAnalytics.getCell('B11').value = "Cant."; wsAnalytics.getCell('C11').value = "$ Total";
+        clasesVehiculos.forEach((clase, idx) => {
+            const r = 12 + idx;
+            wsAnalytics.getCell('A' + r).value = clase;
+            wsAnalytics.getCell('B' + r).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!F2:F5000, "${clase}")` };
+            wsAnalytics.getCell('C' + r).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!F2:F5000, "${clase}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
+            wsAnalytics.getCell('C' + r).numberFormat = '"$"#,##0';
+        });
+
+        wsAnalytics.getCell('E11').value = "Servicio Solicitado"; wsAnalytics.getCell('F11').value = "Cant."; wsAnalytics.getCell('G11').value = "$ Total";
+        const serviciosUnicos = ["Enjuague", "Abajo", "Motor", "De primera calidad"];
+        serviciosUnicos.forEach((serv, idx) => {
+            const r = 12 + idx;
+            wsAnalytics.getCell('E' + r).value = serv;
+            wsAnalytics.getCell('F' + r).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!G2:F5000, "${serv}")` };
+            wsAnalytics.getCell('G' + r).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!G2:F5000, "${serv}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
+            wsAnalytics.getCell('G' + r).numberFormat = '"$"#,##0';
+        });
+
+        wsAnalytics.getCell('I11').value = "Lavador Asignado"; wsAnalytics.getCell('J11').value = "Vehículos"; wsAnalytics.getCell('K11').value = "Recaudo";
+        operarios.forEach((op, idx) => {
+            const r = 12 + idx;
+            wsAnalytics.getCell('I' + r).value = op;
+            wsAnalytics.getCell('J' + r).value = { formula: `COUNTIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}")` };
+            wsAnalytics.getCell('K' + r).value = { formula: `SUMIF('🚗 JORNADA DETALLADA'!I2:I5000, "${op}", '🚗 JORNADA DETALLADA'!H2:H5000)` };
+            wsAnalytics.getCell('K' + r).numberFormat = '"$"#,##0';
+        });
+
+        // Estilo para las cabeceras internas de análisis
+        ['A11', 'B11', 'C11', 'E11', 'F11', 'G11', 'I11', 'J11', 'K11'].forEach(cellRef => {
+            wsAnalytics.getCell(cellRef).font = { name: 'Segoe UI', bold: true, size: 10 };
+            wsAnalytics.getCell(cellRef).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F2F2F2' } };
+        });
+
+        // Autoajustar anchos finales para evitar textos tapados
+        wsJornada.columns.forEach(column => { column.width = 24; });
+        wsDashboard.columns.forEach(column => { column.width = 24; });
+        wsAnalytics.columns.forEach(column => { column.width = 22; });
+
+        // Descarga segura del libro completo de por vida
         workbook.xlsx.writeBuffer().then(function(buffer) {
             const fechaArchivo = new Date().toISOString().slice(0,10);
             saveAs(new Blob([buffer]), `Reporte_Premium_WashControlPro_${fechaArchivo}.xlsx`);
